@@ -1,0 +1,211 @@
+{
+  "name": "V5智能一键开关（Mesh）",
+  "model": "giot.switch.v51ksm",
+  "properties": [
+    {
+      "name": "on",
+      "description": "Switch Status",
+      "type": "bool",
+      "rw": "rw",
+      "unit": null,
+      "range": null,
+      "value-list": null,
+      "method": {
+        "siid": 2,
+        "piid": 1
+      }
+    },
+    {
+      "name": "mode",
+      "description": "Mode",
+      "type": "uint",
+      "rw": "rw",
+      "unit": null,
+      "range": null,
+      "value-list": [
+        {
+          "value": 0,
+          "description": "Wired And Wireless"
+        },
+        {
+          "value": 1,
+          "description": "Wireless"
+        },
+        {
+          "value": 2,
+          "description": "Smart Switch Mode"
+        },
+        {
+          "value": 3,
+          "description": "Toggle Switch Mode"
+        }
+      ],
+      "method": {
+        "siid": 2,
+        "piid": 2
+      }
+    },
+    {
+      "name": "default-power-on-state",
+      "description": "Default Power On State",
+      "type": "uint",
+      "rw": "rw",
+      "unit": null,
+      "range": null,
+      "value-list": [
+        {
+          "value": 0,
+          "description": "Off"
+        },
+        {
+          "value": 1,
+          "description": "On"
+        },
+        {
+          "value": 2,
+          "description": "Default"
+        }
+      ],
+      "method": {
+        "siid": 2,
+        "piid": 3
+      }
+    },
+    {
+      "name": "on",
+      "description": "Switch Status",
+      "type": "bool",
+      "rw": "rw",
+      "unit": null,
+      "range": null,
+      "value-list": null,
+      "method": {
+        "siid": 11,
+        "piid": 1
+      }
+    },
+    {
+      "name": "mode",
+      "description": "Mode",
+      "type": "uint",
+      "rw": "rw",
+      "unit": null,
+      "range": [
+        1,
+        7200
+      ],
+      "value-list": null,
+      "method": {
+        "siid": 11,
+        "piid": 2
+      }
+    },
+    {
+      "name": "led-normal",
+      "description": "led-normal",
+      "type": "uint",
+      "rw": "rw",
+      "unit": null,
+      "range": null,
+      "value-list": [
+        {
+          "value": 0,
+          "description": "Follow Switch Status"
+        },
+        {
+          "value": 1,
+          "description": "Opposite To The Switch State"
+        },
+        {
+          "value": 2,
+          "description": "Often Out State"
+        },
+        {
+          "value": 3,
+          "description": "Normally On State"
+        }
+      ],
+      "method": {
+        "siid": 6,
+        "piid": 1
+      }
+    },
+    {
+      "name": "black-led",
+      "description": "black-led",
+      "type": "bool",
+      "rw": "rw",
+      "unit": null,
+      "range": null,
+      "value-list": null,
+      "method": {
+        "siid": 6,
+        "piid": 3
+      }
+    },
+    {
+      "name": "black-led-valid",
+      "description": "black-led-valid",
+      "type": "uint",
+      "rw": "r",
+      "unit": null,
+      "range": null,
+      "value-list": [
+        {
+          "value": 0,
+          "description": "Invalid"
+        },
+        {
+          "value": 1,
+          "description": "Effective"
+        }
+      ],
+      "method": {
+        "siid": 6,
+        "piid": 4
+      }
+    }
+  ],
+  "actions": [
+    {
+      "name": "toggle",
+      "description": "Toggle",
+      "method": {
+        "siid": 2,
+        "aiid": 1
+      }
+    },
+    {
+      "name": "all-open",
+      "description": "all-open",
+      "method": {
+        "siid": 15,
+        "aiid": 1
+      }
+    },
+    {
+      "name": "all-close",
+      "description": "all-close",
+      "method": {
+        "siid": 15,
+        "aiid": 2
+      }
+    },
+    {
+      "name": "match-code",
+      "description": "match-code",
+      "method": {
+        "siid": 15,
+        "aiid": 3
+      }
+    },
+    {
+      "name": "clear-code",
+      "description": "clear-code",
+      "method": {
+        "siid": 15,
+        "aiid": 4
+      }
+    }
+  ]
+}
