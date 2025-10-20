@@ -1,6 +1,7 @@
 from mijiaAPI import mijiaLogin
 import json, os, sys, time
 sys.path.extend(['.', '..'])
+import asyncio
 
 from vacuum import Vacuum
 
@@ -22,12 +23,15 @@ def qr_code_login():
     with open(f'{JSON_FILE_PATH}/{MIJIA_AUTH}', 'w') as f:
         json.dump(auth, f, indent=2)
 
-def refresh_vacuum_state(vacuum: Vacuum): # refresh the state of the vacuum using Home Assistant API
-    # IDLE -> In position
-    # CLEANING -> On the way to the point
+async def refresh_vacuum_state(vacuum: Vacuum, state: str): # refresh the state of the vacuum using Home Assistant API
+    # 1. IDLE -> In position
+    # 2. CLEANING -> On the way to the point
+    # 3. RETURNING
     while True:
-        current_state = vacuum.get_vacuum_status()
-        if current_state == 'idle': # In Position
-            break
-        else:
-            time.sleep(5)
+        current_state = vacuum.get_vacuum_status().lower()
+        # print(current_state)
+
+        if state.find(current_state) != -1 or current_state.find(state) != -1: # In Position
+            break 
+
+        await asyncio.sleep(5)

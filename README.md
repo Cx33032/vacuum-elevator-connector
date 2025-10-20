@@ -11,4 +11,15 @@ Most of the family-use elevators are not supported with remote control. Therefor
 - [x] Package all the Mijia Controlling program into a single class
 - [x] Roborock Vacuum control (Go to the specific coordinates)
 - [ ] Identification of elevator doors (open / close / elevator is not in this level) (**Cancelled**)
-- [ ] Correct functions in enter, exit the elevator
+- [x] Correct functions in enter, exit the elevator
+- [x] Set the program as a routine
+- [ ] Record the running / error logs
+- [x] Clean specific room
+- [x] Washing and drying the mop
+- [x] Improve the rooms setting (On the mobile application)
+- [x] Clean the elevator
+- [x] Sometimes can not change the map
+
+## Reference
+Home Assistant Roborock - [https://github.com/humbertogontijo/homeassistant-roborock](https://github.com/humbertogontijo/homeassistant-roborock)
+Roborock Python API - [https://github.com/Python-roborock/python-roborock](https://github.com/Python-roborock/python-roborock)

@@ -14,25 +14,34 @@ from const import (
     FLOOR_MAXIMUM,
     DOCK_FLOOR,
     ROBOROCK_AUTH,
+    ROOMS_DATA,
+    FLOOR_MAP_REFERENCE,
 )
 
 floor_map_reference = {
-    "3": 0,
+    "3": 2,
     "2": 1,
+    "1": 0,
 }
 
 class Vacuum():
-    def __init__(self, credentials: str, auth: str, positions: str, entity_id: str = VACUUM_ENTITY_ID):
+    def __init__(self, credentials: str, auth: str, positions: str, rooms: str, entity_id: str = VACUUM_ENTITY_ID):
         # Load the credentials, auth, and positions from the given files
         self.credentials = json.loads(open(credentials, 'r', encoding='utf-8').read())
         self.auth = json.loads(open(auth, 'r', encoding='utf-8').read())
         self.user_data = UserData.from_dict(json.loads(open(auth, 'r', encoding='utf-8').read()))
         self.position_data = json.loads(open(positions, 'r', encoding='utf-8').read())
+        self.rooms = json.loads(open(rooms, 'r', encoding='utf-8').read())
         self.api = None
         self.home_data = None
         self.device_data = None
-        self.map_floor = 3
+        self.map_floor = DOCK_FLOOR
         self.entity_id = entity_id
+        self.is_available = True # Flag to check if the vacuum is available
+    
+    def get_availability(self) -> bool:
+        # Check if the vacuum is available
+        return self.is_available
     
     def get_vacuum_status(self) -> str: 
         # Get the vacuum status from the Home Assistant API
@@ -44,6 +53,20 @@ class Vacuum():
         response = requests.get(url, headers=headers) # Make a GET request to the Home Assistant API
         response_json = json.loads(response.text) # Load the response as a JSON object
         return response_json['state'] # usually idle, cleaning, docked, paused, etc. Return the vacuum status from the JSON object
+    
+    
+    async def refresh_vacuum_state(self, state: str): # refresh the state of the vacuum using Home Assistant API
+        # 1. IDLE -> In position
+        # 2. CLEANING -> On the way to the point
+        # 3. RETURNING
+        while True:
+            current_state = self.get_vacuum_status().lower()
+            # print(current_state)
+
+            if state.find(current_state) != -1 or current_state.find(state) != -1: # In Position
+                break 
+
+            await asyncio.sleep(5)
     
     async def login(self):
         # Login to the Roborock API
@@ -79,7 +102,18 @@ class Vacuum():
         
         with open(f'{JSON_FILE_PATH}/{ROBOROCK_AUTH}', 'w') as f:
             json.dump(user_data.as_dict(), f, indent=2)
-            
+
+    async def refresh_rooms(self):
+        rooms_data_raw = await self.api.get_room_mapping()
+        with open(f'{JSON_FILE_PATH}/rooms.json', 'w') as f:
+            f.write(json.dumps(rooms_data_raw, default=lambda o: o.__dict__, indent=2, ensure_ascii=False))
+
+    async def move_to_recognition_position(self):
+        # Move the vacuum to the recognition point in case the elevator door is closed
+        x_coord = self.position_data[f'{self.map_floor}']['recognition']['x']
+        y_coord = self.position_data[f'{self.map_floor}']['recognition']['y']
+        await self.send(RoborockCommand.APP_GOTO_TARGET, [x_coord, y_coord])
+
     async def move_to_transition_point(self): 
         # Move the vacuum to the transition point
         x_coord = self.position_data[f'{self.map_floor}']['waiting']['x']
@@ -92,21 +126,26 @@ class Vacuum():
         if target_floor == -2:
             return # The function for B2 is still developing
 
-        if target_floor == DOCK_FLOOR:
-            x_coord = self.position_data[f'{self.map_floor}']['dock']['x']
-            y_coord = self.position_data[f'{self.map_floor}']['dock']['y']
-        elif target_floor <= FLOOR_MAXIMUM and target_floor >= FLOOR_MINIMUM:
-            x_coord = self.position_data[f'{self.map_floor}']['waiting']['x']
-            y_coord = self.position_data[f'{self.map_floor}']['waiting']['y']
-        else:
-            raise ValueError('Floor value out of bound')
-
-        await self.send(RoborockCommand.APP_GOTO_TARGET, [x_coord, y_coord])
-        try:
-            await self.send(RoborockCommand.LOAD_MULTI_MAP, [floor_map_reference[str(target_floor)]]) # Need to fix
-            self.map_floor = target_floor
+        x_coord = self.position_data[f'{self.map_floor}']['recognition']['x']
+        y_coord = self.position_data[f'{self.map_floor}']['recognition']['y']
+        
+        try: 
+            await self.send(RoborockCommand.APP_GOTO_TARGET, [x_coord, y_coord])
         except:
-            pass
+            print("Goto Error")
+            await asyncio.sleep(2)
+        await asyncio.sleep(15)
+        await self.refresh_vacuum_state('idle, paused')
+        try:
+            await asyncio.sleep(4)
+            await self.api.load_multi_map(FLOOR_MAP_REFERENCE[str(target_floor)])
+            await asyncio.sleep(2)
+            self.map_floor = target_floor
+        except Exception as e:
+            print("Map change error " + str(e))
+            await asyncio.sleep(2)
+
+        # Used to be while - break
     
     async def enter_elevator(self):
         # Enter the elevator
@@ -117,4 +156,12 @@ class Vacuum():
     async def send(self, command: RoborockCommand, params: dict):
         # Send a command to the vacuum
         await self.api.send_command(command, params=params)
+        
+    async def stop(self):
+        # Stop the vacuum
+        await self.send(RoborockCommand.APP_STOP, params=[])
+        self.is_available = True
     
+    def get_map_floor(self):
+        # Get the current map floor
+        return self.map_floor
