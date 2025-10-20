@@ -6,19 +6,31 @@ This project aims to build the connection between the family-use elevator and th
 
 Most of the family-use elevators are not supported with remote control. Therefore, to control the elevator, the easiest way is to connect the IoT switch with the elevator switch panel (I use Xiaomi giot.switch.v51ksm). 
 
-## To-do List
+## Get Started
 
-- [x] Package all the Mijia Controlling program into a single class
-- [x] Roborock Vacuum control (Go to the specific coordinates)
-- [ ] Identification of elevator doors (open / close / elevator is not in this level) (**Cancelled**)
-- [x] Correct functions in enter, exit the elevator
-- [x] Set the program as a routine
-- [ ] Record the running / error logs
-- [x] Clean specific room
-- [x] Washing and drying the mop
-- [x] Improve the rooms setting (On the mobile application)
-- [x] Clean the elevator
-- [x] Sometimes can not change the map
+```shell
+python -m pip install -r requirements.txt
+```
+
+### Connection Settings
+
+#### Obtain Home Assistant API Key
+
+The Home Assistant is used to check the status of the vacuum. To obtain the API key, the method is the same as [Hass Agent](https://www.hass-agent.io/2.1/getting-started/initial-setup/). Once get the API key, change the API key section in ```const.py```
+
+#### Home Assistant Set-up
+
+The community version of [homeassistant-roborock](https://github.com/humbertogontijo/homeassistant-roborock) is needed. The installation is recommended via HACS. Please check the [homeassistant-roborock](https://github.com/humbertogontijo/homeassistant-roborock) for further details.
+
+#### Mijia and Roborock Credentials
+
+In ```jsons/credentials.json```, change the username to your mijia username. The email and password is for your roborock account. (Probobly will implement environment variable in the future)
+
+### Rooms and Critical Coordinates
+
+#### Rooms in Each Level
+
+#### Important Coordinates
 
 ## Reference
 Home Assistant Roborock - [https://github.com/humbertogontijo/homeassistant-roborock](https://github.com/humbertogontijo/homeassistant-roborock)
